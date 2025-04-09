@@ -13,7 +13,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { Button } from "@/components/Button";
 
-type Option = {
+export type Option = {
   label: string;
   value: string;
 };
@@ -41,12 +41,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] justify-between"
-        >
+        <Button variant="outline" role="combobox" aria-expanded={open}>
           {selected ? selected.label : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
