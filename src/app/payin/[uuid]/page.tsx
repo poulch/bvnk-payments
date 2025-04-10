@@ -6,11 +6,17 @@ import { Container } from "@/components/Container";
 import { PaymentAmount } from "@/components/PaymentAmount";
 import { PaymentTitle } from "@/components/PaymentTitle";
 import { Text } from "@/components/Text";
-import { paymentSummary, paymentUpdate } from "@/lib/api/payments";
+import {
+  paymentConfirm,
+  paymentSummary,
+  paymentUpdate,
+} from "@/lib/api/payments";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/Button";
 import { useState } from "react";
+import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
+import { redirect } from "next/navigation";
 
 const paymentOptions: Option[] = [
   { label: "Bitcoin", value: "BTC" },
@@ -25,32 +31,42 @@ export default function PayIn() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["paymentSummary", params.uuid],
     queryFn: () => paymentSummary(params.uuid),
+    retry: false,
   });
 
   const updatePayment = useMutation({
     mutationFn: (body) => paymentUpdate(params.uuid, body),
   });
 
-  const handlePaymentUpdate = () => {
-    if (selectedCurrency) {
-      updatePayment.mutate({
-        payInMethod: "crypto",
-        currency: selectedCurrency,
-      } as any);
-    }
+  const confirmPayment = useMutation({
+    mutationFn: () => paymentConfirm(params.uuid),
+  });
+
+  const handlePaymentUpdate = (currency: string) => {
+    updatePayment.mutate({
+      payInMethod: "crypto",
+      currency: currency,
+    } as any);
   };
+
+  const handleConfirmPayment = async () => {
+    await confirmPayment.mutateAsync();
+    redirect(`/payin/${params.uuid}/pay`);
+  };
+
+  if (
+    updatePayment?.data?.status === "EXPIRED" ||
+    data?.status === "EXPIRED" ||
+    isError
+  ) {
+    redirect(`/payin/${params.uuid}/expired`);
+    return;
+  }
 
   if (isLoading)
     return (
       <Container>
         <Card>Loading...</Card>
-      </Container>
-    );
-
-  if (isError)
-    return (
-      <Container>
-        <Card>Error </Card>
       </Container>
     );
 
@@ -72,10 +88,38 @@ export default function PayIn() {
           <Combobox
             options={paymentOptions}
             placeholder="Select Currency"
-            onChange={(value) => setSelectedCurrency(value)}
+            onChange={handlePaymentUpdate}
           />
         </div>
-        <Button onClick={handlePaymentUpdate}>Submit</Button>
+
+        {updatePayment.data && (
+          <>
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <Text>Amount due</Text>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Text>
+                      {updatePayment.data.paidCurrency.amount}{" "}
+                      {updatePayment.data.paidCurrency.currency}
+                    </Text>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <Text>Quoted price expires in</Text>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Text>{updatePayment.data.expiryDate}</Text>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+            <Button onClick={handleConfirmPayment}>Submit</Button>
+          </>
+        )}
       </Card>
     </Container>
   );

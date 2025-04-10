@@ -33,8 +33,8 @@ export const payInSchema = z.object({
   transactions: z.array(z.any()),
   refund: z.any().nullable(),
   refunds: z.array(z.any()),
-  currencyOptions: z.array(z.any()),
-  flow: z.string(),
+  currencyOptions: z.array(z.any()).nullable(),
+  flow: z.string().nullable(),
   twoStep: z.boolean(),
   customerId: z.string(),
   walletId: z.string(),
@@ -53,5 +53,12 @@ export const paymentUpdate = async (uuid: string, body: any) => {
     `https://api.sandbox.bvnk.com/api/v1/pay/${uuid}/update/summary`,
     body
   );
-  return data;
+  return payInSchema.parse(data);
+};
+
+export const paymentConfirm = async (uuid: string) => {
+  return axios.put(
+    `https://api.sandbox.bvnk.com/api/v1/pay/${uuid}/accept/summary`,
+    { successUrl: "no_url" }
+  );
 };
