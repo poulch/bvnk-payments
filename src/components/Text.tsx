@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 interface TextProps {
@@ -10,7 +10,7 @@ interface TextProps {
 export function Text({ className, children, isBolded }: TextProps) {
   return (
     <span
-      className={clsx(
+      className={cn(
         "text-gray-600 text-sm",
         {
           "font-medium": isBolded,

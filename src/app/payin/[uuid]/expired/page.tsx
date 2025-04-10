@@ -7,7 +7,7 @@ import Image from "next/image";
 export default function Expired() {
   return (
     <Container>
-      <Card className="gap-6 place-content-center h-80 text-center w-full">
+      <Card className="gap-6 place-content-center text-center w-full">
         <Image
           width="49"
           height="49"

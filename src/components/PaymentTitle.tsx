@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 interface PaymentTitleProps {
   isBolded?: boolean;
@@ -12,7 +12,7 @@ export function PaymentTitle({
 }: PaymentTitleProps) {
   return (
     <h1
-      className={clsx("text-center text-xl text-gray-900", {
+      className={cn("text-center text-xl text-gray-900", {
         "font-bold": isBolded,
         "font-normal": !isBolded,
       })}
