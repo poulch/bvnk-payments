@@ -17,6 +17,7 @@ import { Button } from "@/components/Button";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
 import { redirect } from "next/navigation";
+import { Spinner } from "@/components/Spinner";
 
 const paymentOptions: Option[] = [
   { label: "Bitcoin", value: "BTC" },
@@ -66,7 +67,9 @@ export default function PayIn() {
   if (isLoading)
     return (
       <Container>
-        <Card>Loading...</Card>
+        <Card className="place-content-center">
+          <Spinner />
+        </Card>
       </Container>
     );
 
@@ -91,6 +94,8 @@ export default function PayIn() {
             onChange={handlePaymentUpdate}
           />
         </div>
+
+        {updatePayment.isPending && <Spinner size={24} />}
 
         {updatePayment.data && (
           <>
@@ -117,7 +122,13 @@ export default function PayIn() {
                 </TableRow>
               </TableBody>
             </Table>
-            <Button onClick={handleConfirmPayment}>Submit</Button>
+            <Button
+              disabled={confirmPayment.isPending}
+              onClick={handleConfirmPayment}
+            >
+              {confirmPayment.isPending && <Spinner size={16} />}
+              Submit
+            </Button>
           </>
         )}
       </Card>

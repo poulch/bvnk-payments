@@ -47,6 +47,9 @@ importers:
       react-qr-code:
         specifier: ^2.0.15
         version: 2.0.15(react@19.1.0)
+      spinners-react:
+        specifier: ^1.0.10
+        version: 1.0.10(@types/react-dom@19.1.2(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwind-merge:
         specifier: ^3.2.0
         version: 3.2.0
@@ -1920,6 +1923,14 @@ packages:
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
+
+  spinners-react@1.0.10:
+    resolution: {integrity: sha512-VZy4IhnIVTw8tcsuWtUGz1VfRK4EDnnlIVd88ezkfiDQyYlmo+QbIAjJD1BRghTBr5RJBULuJ4MIPsJapTp1xw==}
+    peerDependencies:
+      '@types/react': ^16.x || ^17.x || ^18.x
+      '@types/react-dom': ^16.x || ^17.x || ^18.x
+      react: ^16.x || ^17.x || ^18.x
+      react-dom: ^16.x || ^17.x || ^18.x
 
   stable-hash@0.0.5:
     resolution: {integrity: sha512-+L3ccpzibovGXFK+Ap/f8LOS0ahMrHTf3xu7mMLSpEGU0EO9ucaysSylKo9eRDFNhWve/y275iPmIZ4z39a9iA==}
@@ -4078,6 +4089,13 @@ snapshots:
     optional: true
 
   source-map-js@1.2.1: {}
+
+  spinners-react@1.0.10(@types/react-dom@19.1.2(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      '@types/react': 19.1.0
+      '@types/react-dom': 19.1.2(@types/react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   stable-hash@0.0.5: {}
 
