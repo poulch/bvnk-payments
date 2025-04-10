@@ -4,27 +4,40 @@ import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
 import { CopyButton } from "@/components/CopyButton";
 import { PaymentTitle } from "@/components/PaymentTitle";
+import { Spinner } from "@/components/Spinner";
 import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
 import { Text } from "@/components/Text";
 import { paymentSummary } from "@/lib/api/payments";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, redirect } from "next/navigation";
 import QRCode from "react-qr-code";
 
 export default function Pay() {
   const params = useParams<{ uuid: string }>();
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["paymentSummary", params.uuid],
     queryFn: () => paymentSummary(params.uuid),
-    retry: false,
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container>
+        <Card>
+          <Spinner />
+        </Card>
+      </Container>
+    );
+  }
+
+  if (data?.status === "EXPIRED") {
+    redirect("/payin/expired");
+    return;
   }
 
   if (isError) {
-    return <div>Error loading payment details</div>;
+    redirect("/payin/error");
+    return;
   }
 
   const address = data?.address;
