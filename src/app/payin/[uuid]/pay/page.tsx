@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
+import { CopyButton } from "@/components/CopyButton";
 import { PaymentTitle } from "@/components/PaymentTitle";
 import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
 import { Text } from "@/components/Text";
@@ -18,10 +18,6 @@ export default function Pay() {
     queryFn: () => paymentSummary(params.uuid),
     retry: false,
   });
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -52,15 +48,9 @@ export default function Pay() {
               <TableCell className="text-right">
                 <Text>
                   {data?.paidCurrency.amount} {data?.paidCurrency.currency}
-                  <Button
-                    variant="ghost"
-                    className="text-blue-500"
-                    onClick={() =>
-                      handleCopy(data?.paidCurrency?.amount.toString() ?? "")
-                    }
-                  >
-                    Copy
-                  </Button>
+                  <CopyButton
+                    text={data?.paidCurrency?.amount.toString() ?? ""}
+                  />
                 </Text>
               </TableCell>
             </TableRow>
@@ -73,13 +63,7 @@ export default function Pay() {
                   {address?.address.slice(0, 7)}...
                   {address?.address.slice(-5)}
                 </Text>
-                <Button
-                  variant="ghost"
-                  className="text-blue-500"
-                  onClick={() => handleCopy(address?.address ?? "")}
-                >
-                  Copy
-                </Button>
+                <CopyButton text={address?.address ?? ""} />
               </TableCell>
             </TableRow>
           </TableBody>
