@@ -27,7 +27,15 @@ export const payInSchema = z.object({
   networkFeeCurrency: currencySchema, // changed from nullable to required
   displayRate: z.any().nullable(),
   exchangeRate: z.any().nullable(),
-  address: z.any().nullable(),
+  address: z
+    .object({
+      address: z.string(),
+      tag: z.any().nullable(),
+      protocol: z.string(),
+      uri: z.string(),
+      alternatives: z.any(),
+    })
+    .nullable(),
   returnUrl: z.string(),
   redirectUrl: z.string().url(),
   transactions: z.array(z.any()),

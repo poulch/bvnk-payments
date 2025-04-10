@@ -1,10 +1,38 @@
+"use client";
+
+import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
 import { PaymentTitle } from "@/components/PaymentTitle";
 import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
 import { Text } from "@/components/Text";
+import { paymentSummary } from "@/lib/api/payments";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import QRCode from "react-qr-code";
 
 export default function Pay() {
+  const params = useParams<{ uuid: string }>();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["paymentSummary", params.uuid],
+    queryFn: () => paymentSummary(params.uuid),
+    retry: false,
+  });
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading payment details</div>;
+  }
+
+  const address = data?.address;
+
   return (
     <Container>
       <Card>
@@ -22,7 +50,18 @@ export default function Pay() {
                 <Text>Amount due</Text>
               </TableCell>
               <TableCell className="text-right">
-                <Text>0.00410775 BTC COPY</Text>
+                <Text>
+                  {data?.paidCurrency.amount} {data?.paidCurrency.currency}
+                  <Button
+                    variant="ghost"
+                    className="text-blue-500"
+                    onClick={() =>
+                      handleCopy(data?.paidCurrency?.amount.toString() ?? "")
+                    }
+                  >
+                    Copy
+                  </Button>
+                </Text>
               </TableCell>
             </TableRow>
             <TableRow>
@@ -30,13 +69,27 @@ export default function Pay() {
                 <Text>BTC address</Text>
               </TableCell>
               <TableCell className="text-right">
-                <Text>rh6X8bZ...haAdy</Text>
-                COPY
+                <Text>
+                  {address?.address.slice(0, 7)}...
+                  {address?.address.slice(-5)}
+                </Text>
+                <Button
+                  variant="ghost"
+                  className="text-blue-500"
+                  onClick={() => handleCopy(address?.address ?? "")}
+                >
+                  Copy
+                </Button>
               </TableCell>
             </TableRow>
           </TableBody>
         </Table>
-        Some image here
+
+        <div className="flex justify-center">
+          <QRCode value={address?.address ?? ""} size={128} />
+        </div>
+        <Text>{address?.address}</Text>
+
         <Table>
           <TableBody>
             <TableRow>
@@ -44,7 +97,7 @@ export default function Pay() {
                 <Text>Time left to pay</Text>
               </TableCell>
               <TableCell className="text-right">
-                <Text>02:59:59</Text>
+                <Text>{data?.expiryDate}</Text>
               </TableCell>
             </TableRow>
           </TableBody>
