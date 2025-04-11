@@ -1,7 +1,7 @@
-import { Card } from "@/components/Card";
-import { Container } from "@/components/Container";
-import { PaymentTitle } from "@/components/PaymentTitle";
-import { Text } from "@/components/Text";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { PaymentTitle } from "@/components/ui/PaymentTitle";
+import { Text } from "@/components/ui/Text";
 import Image from "next/image";
 
 export default function Error() {

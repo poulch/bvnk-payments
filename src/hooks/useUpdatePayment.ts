@@ -19,27 +19,29 @@ export const useUpdatePayment = ({
   });
 
   useEffect(() => {
-    if (currency && updatePayment?.data?.acceptanceExpiryDate) {
-      const intervalDelta =
-        updatePayment.data.acceptanceExpiryDate - Date.now();
+    if (currency) {
+      if (updatePayment?.data?.acceptanceExpiryDate) {
+        const intervalDelta =
+          updatePayment.data.acceptanceExpiryDate - Date.now();
 
-      const intervalId = setInterval(() => {
-        handlePaymentUpdate(currency);
-      }, intervalDelta);
+        const intervalId = setInterval(() => {
+          updatePayment.mutate({
+            payInMethod: "crypto",
+            currency: currency,
+          });
+        }, intervalDelta);
 
-      return () => clearInterval(intervalId);
+        return () => clearInterval(intervalId);
+      } else {
+        updatePayment.mutate({
+          payInMethod: "crypto",
+          currency: currency,
+        });
+      }
     }
   }, [currency, updatePayment?.data?.acceptanceExpiryDate]);
 
-  const handlePaymentUpdate = (currency: string) => {
-    updatePayment.mutate({
-      payInMethod: "crypto",
-      currency: currency,
-    });
-  };
-
   return {
-    handlePaymentUpdate,
     updatePayment,
   };
 };

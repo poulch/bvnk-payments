@@ -9,9 +9,13 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
-import { Button } from "@/components/Button";
+} from "@/components/ui/Command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/Popover";
+import { Button } from "@/components/ui/Button";
 
 export type Option = {
   label: string;

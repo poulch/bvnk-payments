@@ -1,56 +1,60 @@
 "use client";
 
-import { Card } from "@/components/Card";
-import { Container } from "@/components/Container";
-import { CopyButton } from "@/components/CopyButton";
-import { ExpireDate } from "@/components/ExpireDate";
-import { PaymentTitle } from "@/components/PaymentTitle";
-import { Spinner } from "@/components/Spinner";
-import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
-import { Text } from "@/components/Text";
-import { paymentSummary } from "@/lib/api/payments";
-import { useQuery } from "@tanstack/react-query";
-import { useParams, redirect } from "next/navigation";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { CopyButton } from "@/components/ui/CopyButton";
+import { ExpireDate } from "@/components/ui/ExpireDate";
+import { PaymentTitle } from "@/components/ui/PaymentTitle";
+import { Spinner } from "@/components/ui/Spinner";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/Table";
+import { Text } from "@/components/ui/Text";
+import { usePaymentSummary } from "@/hooks/usePaymentSummary";
+import { paymentOptions } from "@/paymentOptions";
+import { useParams, useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 
 export default function Pay() {
   const params = useParams<{ uuid: string }>();
+  const router = useRouter();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["paymentSummary", params.uuid],
-    queryFn: () => paymentSummary(params.uuid),
-  });
+  const { data, isLoading, isError, isExpired } = usePaymentSummary(
+    params.uuid
+  );
 
   if (isLoading) {
     return (
       <Container>
-        <Card>
+        <Card className="place-content-center grid min-h-80">
           <Spinner />
         </Card>
       </Container>
     );
   }
 
-  if (data?.status === "EXPIRED") {
-    redirect("/payin/expired");
+  if (isExpired) {
+    router.push(`/payin/${params.uuid}/expired`);
     return;
   }
 
   if (isError) {
-    redirect("/payin/error");
+    router.push(`/payin/${params.uuid}/error`);
     return;
   }
 
   const address = data?.address;
+  const currency = data?.paidCurrency.currency;
+  const currencyLabel =
+    paymentOptions.find((option) => option.value === currency)?.label ??
+    "Bitcoin";
 
   return (
     <Container>
       <Card>
-        <PaymentTitle>Pay with Bitcoin</PaymentTitle>
-        <p className="text-center mt-6">
+        <PaymentTitle>Pay with {currencyLabel}</PaymentTitle>
+        <p className="text-center mt-6 max-w-[300px] mx-auto">
           <Text>
-            To complete this payment send the amount due to the BTC address
-            provided below.
+            To complete this payment send the amount due to the {currency}{" "}
+            address provided below.
           </Text>
         </p>
         <Table className="mt-6 border-b-0">
@@ -61,7 +65,7 @@ export default function Pay() {
               </TableCell>
               <TableCell className="text-right">
                 <Text className="mr-2">
-                  {data?.paidCurrency.amount} {data?.paidCurrency.currency}
+                  {data?.paidCurrency.amount} {currency}
                 </Text>
                 <CopyButton
                   text={data?.paidCurrency?.amount.toString() ?? ""}

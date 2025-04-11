@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Text } from "@/components/Text";
+import { Text } from "@/components/ui/Text";
 
 interface ExpireDateProps {
   datetime: number;
