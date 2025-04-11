@@ -6,18 +6,16 @@ import { Container } from "@/components/Container";
 import { PaymentAmount } from "@/components/PaymentAmount";
 import { PaymentTitle } from "@/components/PaymentTitle";
 import { Text } from "@/components/Text";
-import {
-  paymentConfirm,
-  paymentSummary,
-  paymentUpdate,
-} from "@/lib/api/payments";
+import { paymentConfirm, paymentSummary } from "@/lib/api/payments";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/Button";
-import { useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
 import { redirect } from "next/navigation";
 import { Spinner } from "@/components/Spinner";
+import { ExpireDate } from "@/components/ExpireDate";
+import { useUpdatePayment } from "@/hooks/useUpdatePayment";
+import { useState } from "react";
 
 const paymentOptions: Option[] = [
   { label: "Bitcoin", value: "BTC" },
@@ -27,40 +25,39 @@ const paymentOptions: Option[] = [
 
 export default function PayIn() {
   const params = useParams<{ uuid: string }>();
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+  const [currency, setCurrency] = useState<string | undefined>(undefined);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["paymentSummary", params.uuid],
     queryFn: () => paymentSummary(params.uuid),
-    retry: false,
   });
 
-  const updatePayment = useMutation({
-    mutationFn: (body) => paymentUpdate(params.uuid, body),
+  const { handlePaymentUpdate, updatePayment } = useUpdatePayment({
+    uuid: params.uuid,
+    currency,
   });
 
   const confirmPayment = useMutation({
     mutationFn: () => paymentConfirm(params.uuid),
   });
 
-  const handlePaymentUpdate = (currency: string) => {
-    updatePayment.mutate({
-      payInMethod: "crypto",
-      currency: currency,
-    } as any);
-  };
-
   const handleConfirmPayment = async () => {
     await confirmPayment.mutateAsync();
     redirect(`/payin/${params.uuid}/pay`);
   };
 
-  if (
-    updatePayment?.data?.status === "EXPIRED" ||
-    data?.status === "EXPIRED" ||
-    isError
-  ) {
+  const handleCurrencyChange = (currency: string) => {
+    setCurrency(currency);
+    handlePaymentUpdate(currency);
+  };
+
+  if (updatePayment?.data?.status === "EXPIRED" || data?.status === "EXPIRED") {
     redirect(`/payin/${params.uuid}/expired`);
+    return;
+  }
+
+  if (isError) {
+    redirect(`/payin/${params.uuid}/error`);
     return;
   }
 
@@ -91,7 +88,7 @@ export default function PayIn() {
           <Combobox
             options={paymentOptions}
             placeholder="Select Currency"
-            onChange={handlePaymentUpdate}
+            onChange={handleCurrencyChange}
           />
         </div>
 
@@ -117,7 +114,9 @@ export default function PayIn() {
                     <Text>Quoted price expires in</Text>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Text>{updatePayment.data.expiryDate}</Text>
+                    <ExpireDate
+                      datetime={updatePayment.data.acceptanceExpiryDate ?? 0}
+                    />
                   </TableCell>
                 </TableRow>
               </TableBody>
