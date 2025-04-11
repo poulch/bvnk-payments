@@ -3,6 +3,7 @@
 import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
 import { CopyButton } from "@/components/CopyButton";
+import { ExpireDate } from "@/components/ExpireDate";
 import { PaymentTitle } from "@/components/PaymentTitle";
 import { Spinner } from "@/components/Spinner";
 import { Table, TableBody, TableCell, TableRow } from "@/components/Table";
@@ -46,25 +47,25 @@ export default function Pay() {
     <Container>
       <Card>
         <PaymentTitle>Pay with Bitcoin</PaymentTitle>
-        <p className="text-center">
+        <p className="text-center mt-6">
           <Text>
             To complete this payment send the amount due to the BTC address
             provided below.
           </Text>
         </p>
-        <Table>
+        <Table className="mt-6 border-b-0">
           <TableBody>
             <TableRow>
               <TableCell>
                 <Text>Amount due</Text>
               </TableCell>
               <TableCell className="text-right">
-                <Text>
+                <Text className="mr-2">
                   {data?.paidCurrency.amount} {data?.paidCurrency.currency}
-                  <CopyButton
-                    text={data?.paidCurrency?.amount.toString() ?? ""}
-                  />
                 </Text>
+                <CopyButton
+                  text={data?.paidCurrency?.amount.toString() ?? ""}
+                />
               </TableCell>
             </TableRow>
             <TableRow>
@@ -72,7 +73,7 @@ export default function Pay() {
                 <Text>BTC address</Text>
               </TableCell>
               <TableCell className="text-right">
-                <Text>
+                <Text className="mr-2">
                   {address?.address.slice(0, 7)}...
                   {address?.address.slice(-5)}
                 </Text>
@@ -82,10 +83,10 @@ export default function Pay() {
           </TableBody>
         </Table>
 
-        <div className="flex justify-center">
-          <QRCode value={address?.address ?? ""} size={128} />
+        <div className="flex flex-col items-center gap-3 mt-2 mb-3">
+          <QRCode value={address?.address ?? ""} size={140} />
+          <Text className="text-xs text-center">{address?.address}</Text>
         </div>
-        <Text>{address?.address}</Text>
 
         <Table>
           <TableBody>
@@ -94,7 +95,7 @@ export default function Pay() {
                 <Text>Time left to pay</Text>
               </TableCell>
               <TableCell className="text-right">
-                <Text>{data?.expiryDate}</Text>
+                <ExpireDate datetime={data?.expiryDate ?? 0} />
               </TableCell>
             </TableRow>
           </TableBody>

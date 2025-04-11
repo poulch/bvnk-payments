@@ -16,6 +16,8 @@ import { Spinner } from "@/components/Spinner";
 import { ExpireDate } from "@/components/ExpireDate";
 import { useUpdatePayment } from "@/hooks/useUpdatePayment";
 import { useState } from "react";
+import { Money } from "@/components/Money";
+import { AxiosError } from "axios";
 
 const paymentOptions: Option[] = [
   { label: "Bitcoin", value: "BTC" },
@@ -36,6 +38,7 @@ export default function PayIn() {
     uuid: params.uuid,
     currency,
   });
+  const updatePaymentLoading = updatePayment?.isPending ?? false;
 
   const confirmPayment = useMutation({
     mutationFn: () => paymentConfirm(params.uuid),
@@ -51,7 +54,18 @@ export default function PayIn() {
     handlePaymentUpdate(currency);
   };
 
-  if (updatePayment?.data?.status === "EXPIRED" || data?.status === "EXPIRED") {
+  if (data?.quoteStatus === "ACCEPTED") {
+    redirect(`/payin/${params.uuid}/pay`);
+    return;
+  }
+
+  if (
+    updatePayment?.data?.status === "EXPIRED" ||
+    data?.status === "EXPIRED" ||
+    (
+      updatePayment?.error as AxiosError<{ message: string }>
+    )?.response?.data?.message?.includes("EXPIRED")
+  ) {
     redirect(`/payin/${params.uuid}/expired`);
     return;
   }
@@ -64,7 +78,7 @@ export default function PayIn() {
   if (isLoading)
     return (
       <Container>
-        <Card className="place-content-center">
+        <Card className="place-content-center grid min-h-80">
           <Spinner />
         </Card>
       </Container>
@@ -73,17 +87,20 @@ export default function PayIn() {
   return (
     <Container>
       <Card>
-        <PaymentTitle>{data?.merchantDisplayName}</PaymentTitle>
-        <PaymentAmount
-          amount={data?.displayCurrency.amount ?? 0}
-          currency={data?.displayCurrency.currency ?? ""}
-        />
-        <p className="text-center">
-          <Text>For reference number:</Text>
+        <div>
+          <PaymentTitle>{data?.merchantDisplayName}</PaymentTitle>
+          <PaymentAmount
+            className="mt-2"
+            amount={data?.displayCurrency.amount ?? 0}
+            currency={data?.displayCurrency.currency ?? ""}
+          />
+        </div>
+        <p className="text-center mt-6">
+          <Text className="text-sm">For reference number:</Text>
           <Text isBolded> {data?.reference}</Text>
         </p>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1 mt-6">
           <Text>Pay with</Text>
           <Combobox
             options={paymentOptions}
@@ -92,43 +109,49 @@ export default function PayIn() {
           />
         </div>
 
-        {updatePayment.isPending && <Spinner size={24} />}
-
-        {updatePayment.data && (
-          <>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <Text>Amount due</Text>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Text>
-                      {updatePayment.data.paidCurrency.amount}{" "}
-                      {updatePayment.data.paidCurrency.currency}
-                    </Text>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <Text>Quoted price expires in</Text>
-                  </TableCell>
-                  <TableCell className="text-right">
+        {(updatePayment?.data || updatePaymentLoading) && (
+          <Table className="mt-8">
+            <TableBody>
+              <TableRow>
+                <TableCell>
+                  <Text>Amount due</Text>
+                </TableCell>
+                <TableCell className="text-right">
+                  {updatePaymentLoading ? (
+                    <Spinner size={16} />
+                  ) : (
+                    <Money money={updatePayment?.data?.paidCurrency} />
+                  )}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <Text>Quoted price expires in</Text>
+                </TableCell>
+                <TableCell className="text-right">
+                  {updatePaymentLoading ? (
+                    <Spinner size={16} />
+                  ) : (
                     <ExpireDate
-                      datetime={updatePayment.data.acceptanceExpiryDate ?? 0}
+                      datetime={updatePayment?.data?.acceptanceExpiryDate ?? 0}
                     />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <Button
-              disabled={confirmPayment.isPending}
-              onClick={handleConfirmPayment}
-            >
-              {confirmPayment.isPending && <Spinner size={16} />}
-              Submit
-            </Button>
-          </>
+                  )}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        )}
+
+        {updatePayment?.data && (
+          <Button
+            disabled={confirmPayment.isPending}
+            onClick={handleConfirmPayment}
+            className="w-full mt-8"
+          >
+            {confirmPayment.isPending && "Confirming..."}
+            {confirmPayment.isSuccess && "Confirmed!"}
+            {confirmPayment.isIdle && "Confirm"}
+          </Button>
         )}
       </Card>
     </Container>

@@ -14,7 +14,7 @@ export function PaymentTitle({
     <h1
       className={cn("text-center text-xl text-gray-900", {
         "font-bold": isBolded,
-        "font-normal": !isBolded,
+        "font-medium": !isBolded,
       })}
     >
       {children}

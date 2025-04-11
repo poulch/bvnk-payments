@@ -41,12 +41,18 @@ export const Combobox: React.FC<ComboboxProps> = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open}>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          size="lg"
+          className="w-full justify-between"
+        >
           {selected ? selected.label : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[412px] p-0">
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandEmpty>No option found.</CommandEmpty>
