@@ -54,11 +54,6 @@ export default function PayIn() {
     handlePaymentUpdate(currency);
   };
 
-  if (data?.quoteStatus === "ACCEPTED") {
-    redirect(`/payin/${params.uuid}/pay`);
-    return;
-  }
-
   if (
     updatePayment?.data?.status === "EXPIRED" ||
     data?.status === "EXPIRED" ||
@@ -67,6 +62,11 @@ export default function PayIn() {
     )?.response?.data?.message?.includes("EXPIRED")
   ) {
     redirect(`/payin/${params.uuid}/expired`);
+    return;
+  }
+
+  if (data?.quoteStatus === "ACCEPTED") {
+    redirect(`/payin/${params.uuid}/pay`);
     return;
   }
 
