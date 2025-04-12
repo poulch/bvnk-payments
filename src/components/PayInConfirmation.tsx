@@ -9,7 +9,7 @@ import { Text } from "./ui/Text";
 interface PayInConfirmationProps {
   isLoading: boolean;
   expiredTimestamp: number;
-  showConfirmButton: boolean;
+  hasSelectedCurrency: boolean;
   paidCurrency:
     | {
         amount: number;
@@ -21,15 +21,14 @@ interface PayInConfirmationProps {
 
 export const PayInConfirmation = ({
   isLoading,
-  showConfirmButton,
+  hasSelectedCurrency,
   paidCurrency,
   expiredTimestamp,
   onConfirmPayment,
 }: PayInConfirmationProps) => {
   const [navigating, setNavigating] = useState(false);
-  console.log("showConfirmButton", showConfirmButton);
 
-  if (!isLoading && !showConfirmButton) {
+  if (!hasSelectedCurrency) {
     return null;
   }
 
@@ -69,7 +68,7 @@ export const PayInConfirmation = ({
         </TableBody>
       </Table>
 
-      {showConfirmButton && (
+      {!isLoading && (
         <Button
           disabled={navigating}
           onClick={handleConfirmPayment}

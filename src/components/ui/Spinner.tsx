@@ -6,7 +6,7 @@ interface SpinnerProps {
 
 export const Spinner = ({ size }: SpinnerProps) => {
   return (
-    <div className="flex justify-center">
+    <div data-testid="spinner" className="flex justify-center">
       <SpinnerCircular size={size} color="var(--color-primary)" />
     </div>
   );

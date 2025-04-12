@@ -64,6 +64,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
             {options.map((option) => (
               <CommandItem
                 key={option.value}
+                data-testid="option"
                 onSelect={() => handleSelect(option)}
               >
                 <Check

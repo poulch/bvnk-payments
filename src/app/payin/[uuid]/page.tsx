@@ -69,7 +69,7 @@ export default function PayIn() {
 
         <PayInConfirmation
           isLoading={updatePaymentLoading}
-          showConfirmButton={!!updatePayment?.data}
+          hasSelectedCurrency={!!currency}
           onConfirmPayment={handleConfirmPayment}
           paidCurrency={updatePayment?.data?.paidCurrency}
           expiredTimestamp={updatePayment?.data?.acceptanceExpiryDate ?? 0}
