@@ -37,3 +37,13 @@ pnpm run dev
 
 App will be available at http://localhost:3000
 You can know can go to route http://localhost:3000/payin/UUID
+
+## Testing
+
+The app has unit and integration tests writen in jest and react testing library.
+
+### Run tests
+
+```bash
+pnpm test
+```
