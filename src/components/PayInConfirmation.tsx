@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "./ui/Button";
 import { Text } from "./ui/Text";
 import { paymentOptions } from "@/paymentOptions";
 import { Combobox } from "./ui/Combobx";
@@ -9,12 +8,12 @@ import { useUpdatePayment } from "@/hooks/useUpdatePayment";
 import { useParams, useRouter } from "next/navigation";
 import { PayInConfirmationDetails } from "./PayInConfirmationDetails";
 import { useConfirmPayment } from "@/hooks/useComfirmPayment";
+import { ConfirmButton } from "./ConfirmButton";
 
 export const PayInConfirmation = () => {
   const router = useRouter();
   const { uuid } = useParams<{ uuid: string }>();
   const [currency, setCurrency] = useState<string | null>(null);
-  const [navigating, setNavigating] = useState(false);
 
   const { updatePayment } = useUpdatePayment({
     uuid,
@@ -29,7 +28,6 @@ export const PayInConfirmation = () => {
   };
 
   const handleConfirmPayment = async () => {
-    setNavigating(true);
     await confirmPayment();
     router.push(`/payin/${uuid}/pay`);
   };
@@ -56,13 +54,7 @@ export const PayInConfirmation = () => {
           />
 
           {!updatePaymentLoading && (
-            <Button
-              disabled={navigating}
-              onClick={handleConfirmPayment}
-              className="w-full mt-8"
-            >
-              {navigating ? "Processing..." : "Confirm"}
-            </Button>
+            <ConfirmButton onClick={handleConfirmPayment} />
           )}
         </>
       )}

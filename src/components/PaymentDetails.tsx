@@ -1,3 +1,5 @@
+"use client";
+
 import QRCode from "react-qr-code";
 import { CopyButton } from "./ui/CopyButton";
 import { Table, TableBody, TableCell, TableRow } from "./ui/Table";
