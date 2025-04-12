@@ -11,20 +11,15 @@ import { useState } from "react";
 import { usePaymentSummary } from "@/hooks/usePaymentSummary";
 import { PayInSummaryCard } from "@/components/PayInSummaryCard";
 import { PayInConfirmation } from "@/components/PayInConfirmation";
-import { useExpiredRedirect } from "@/hooks/useExpiredRedirect";
-import { usePaymentRedirect } from "@/hooks/usePaymentRedirect";
-import { useErrorRedirect } from "@/hooks/useErrorRedirect";
 
 export default function PayIn() {
   const router = useRouter();
   const params = useParams<{ uuid: string }>();
   const [currency, setCurrency] = useState<string | undefined>(undefined);
 
-  const { data, isLoading, isError, isExpired, isAccepted } = usePaymentSummary(
-    params.uuid
-  );
+  const { data, isLoading } = usePaymentSummary(params.uuid);
 
-  const { updatePayment, isExpired: isPaymentExpired } = useUpdatePayment({
+  const { updatePayment } = useUpdatePayment({
     uuid: params.uuid,
     currency,
   });
@@ -43,10 +38,6 @@ export default function PayIn() {
     router.push(`/payin/${params.uuid}/pay`);
   };
 
-  useExpiredRedirect(isExpired || isPaymentExpired, params.uuid);
-  usePaymentRedirect(isAccepted, params.uuid);
-  useErrorRedirect(isError);
-
   if (isLoading)
     return (
       <Container>
@@ -61,8 +52,8 @@ export default function PayIn() {
       <Card>
         <PayInSummaryCard
           currency={{
-            amount: updatePayment?.data?.displayCurrency.amount ?? 0,
-            currency: updatePayment?.data?.displayCurrency.currency ?? "",
+            amount: data?.displayCurrency.amount ?? 0,
+            currency: data?.displayCurrency.currency ?? "",
           }}
           onCurrencyChange={handleCurrencyChange}
           reference={data?.reference ?? ""}
@@ -74,8 +65,8 @@ export default function PayIn() {
           hasSelectedCurrency={!!currency}
           onConfirmPayment={handleConfirmPayment}
           paidCurrency={{
-            amount: updatePayment?.data?.displayCurrency.amount ?? 0,
-            currency: updatePayment?.data?.displayCurrency.currency ?? "",
+            amount: updatePayment?.data?.paidCurrency.amount ?? 0,
+            currency: updatePayment?.data?.paidCurrency.currency ?? "",
           }}
           expiredTimestamp={updatePayment?.data?.acceptanceExpiryDate ?? 0}
         />

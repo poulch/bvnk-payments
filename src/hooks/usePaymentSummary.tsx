@@ -7,14 +7,9 @@ export const usePaymentSummary = (uuid: string) => {
     queryFn: () => paymentSummary(uuid),
   });
 
-  const isExpired = data?.status === "EXPIRED";
-  const isAccepted = data?.quoteStatus === "ACCEPTED";
-
   return {
-    data,
+    data: data?.data,
     isLoading,
     isError,
-    isExpired,
-    isAccepted,
   };
 };

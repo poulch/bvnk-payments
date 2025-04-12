@@ -27,7 +27,7 @@ export const PayInSummaryCard = ({
         currency={currency.currency || ""}
       />
       <p className="text-center mt-6">
-        <Text className="text-sm">For reference number:</Text>
+        <Text className="text-sm">For reference number: </Text>
         <Text isBolded>{reference}</Text>
       </p>
       <div className="flex flex-col gap-1 mt-6">

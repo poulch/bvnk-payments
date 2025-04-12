@@ -6,8 +6,6 @@ import { Container } from "@/components/ui/Container";
 import { PaymentTitle } from "@/components/ui/PaymentTitle";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
-import { useExpiredRedirect } from "@/hooks/useExpiredRedirect";
-import { useErrorRedirect } from "@/hooks/useErrorRedirect";
 import { usePaymentSummary } from "@/hooks/usePaymentSummary";
 import { paymentOptions } from "@/paymentOptions";
 import { useParams } from "next/navigation";
@@ -15,12 +13,7 @@ import { useParams } from "next/navigation";
 export default function Pay() {
   const params = useParams<{ uuid: string }>();
 
-  const { data, isLoading, isError, isExpired } = usePaymentSummary(
-    params.uuid
-  );
-
-  useExpiredRedirect(isExpired, params.uuid);
-  useErrorRedirect(isError);
+  const { data, isLoading } = usePaymentSummary(params.uuid);
 
   if (isLoading) {
     return (

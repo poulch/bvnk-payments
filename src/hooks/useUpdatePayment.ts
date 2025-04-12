@@ -1,12 +1,7 @@
 import { paymentUpdate } from "@/lib/api/payments";
+import { PaymentUpdateBody } from "@/types";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useEffect } from "react";
-
-interface PaymentUpdateBody {
-  payInMethod: string;
-  currency: string;
-}
 
 export const useUpdatePayment = ({
   uuid,
@@ -18,13 +13,6 @@ export const useUpdatePayment = ({
   const updatePayment = useMutation({
     mutationFn: (body: PaymentUpdateBody) => paymentUpdate(uuid, body),
   });
-
-  const isExpired =
-    (updatePayment?.data?.status === "EXPIRED" ||
-      (
-        updatePayment?.error as AxiosError<{ message: string }>
-      )?.response?.data?.message?.includes("EXPIRED")) ??
-    false;
 
   useEffect(() => {
     if (currency) {
@@ -51,6 +39,5 @@ export const useUpdatePayment = ({
 
   return {
     updatePayment,
-    isExpired,
   };
 };
