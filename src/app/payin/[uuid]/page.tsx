@@ -60,8 +60,10 @@ export default function PayIn() {
     <Container>
       <Card>
         <PayInSummaryCard
-          currency={data?.displayCurrency.currency ?? ""}
-          currencyAmount={data?.displayCurrency.amount ?? 0}
+          currency={{
+            amount: updatePayment?.data?.displayCurrency.amount ?? 0,
+            currency: updatePayment?.data?.displayCurrency.currency ?? "",
+          }}
           onCurrencyChange={handleCurrencyChange}
           reference={data?.reference ?? ""}
           title={data?.merchantDisplayName ?? ""}
@@ -71,7 +73,10 @@ export default function PayIn() {
           isLoading={updatePaymentLoading}
           hasSelectedCurrency={!!currency}
           onConfirmPayment={handleConfirmPayment}
-          paidCurrency={updatePayment?.data?.paidCurrency}
+          paidCurrency={{
+            amount: updatePayment?.data?.displayCurrency.amount ?? 0,
+            currency: updatePayment?.data?.displayCurrency.currency ?? "",
+          }}
           expiredTimestamp={updatePayment?.data?.acceptanceExpiryDate ?? 0}
         />
       </Card>

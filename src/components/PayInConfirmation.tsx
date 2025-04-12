@@ -5,17 +5,13 @@ import { Money } from "./ui/Money";
 import { Spinner } from "./ui/Spinner";
 import { Table, TableBody, TableCell, TableRow } from "./ui/Table";
 import { Text } from "./ui/Text";
+import { Currency } from "@/types";
 
 interface PayInConfirmationProps {
   isLoading: boolean;
   expiredTimestamp: number;
   hasSelectedCurrency: boolean;
-  paidCurrency:
-    | {
-        amount: number;
-        currency: string | null;
-      }
-    | undefined;
+  paidCurrency: Currency;
   onConfirmPayment: () => void;
 }
 

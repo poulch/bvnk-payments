@@ -4,12 +4,10 @@ import { Table, TableBody, TableCell, TableRow } from "./ui/Table";
 import { Text } from "./ui/Text";
 import { ExpireDate } from "./ui/ExpireDate";
 import { formatWalletAddress } from "@/lib/utils";
+import { Currency } from "@/types";
 
 interface PaymentDetailsProps {
-  paidCurrency: {
-    amount: number;
-    currency: string | null;
-  };
+  paidCurrency: Currency;
   expiredTimestamp: number;
   walletAddress: string;
 }

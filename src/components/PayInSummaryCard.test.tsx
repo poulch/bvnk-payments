@@ -7,8 +7,10 @@ describe("PayInSummaryCard", () => {
     const props = {
       reference: "123456",
       title: "Payment Title",
-      currencyAmount: 100,
-      currency: "USD",
+      currency: {
+        amount: 100,
+        currency: "USD",
+      },
       onCurrencyChange: jest.fn(),
     };
 
@@ -29,8 +31,10 @@ describe("PayInSummaryCard", () => {
     const props = {
       reference: "123456",
       title: "Payment Title",
-      currencyAmount: 100,
-      currency: "USD",
+      currency: {
+        amount: 100,
+        currency: "USD",
+      },
       onCurrencyChange: jest.fn(),
     };
     render(<PayInSummaryCard {...props} />);

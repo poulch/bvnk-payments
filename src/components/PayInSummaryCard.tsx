@@ -3,18 +3,17 @@ import { Combobox } from "./ui/Combobx";
 import { PaymentAmount } from "./ui/PaymentAmount";
 import { PaymentTitle } from "./ui/PaymentTitle";
 import { Text } from "./ui/Text";
+import { Currency } from "@/types";
 
 export interface PayInSummaryCardProps {
   reference: string;
   title: string;
-  currencyAmount: number;
-  currency: string;
+  currency: Currency;
   onCurrencyChange: (currency: string) => void;
 }
 
 export const PayInSummaryCard = ({
   currency,
-  currencyAmount,
   onCurrencyChange,
   reference,
   title,
@@ -24,8 +23,8 @@ export const PayInSummaryCard = ({
       <PaymentTitle>{title}</PaymentTitle>
       <PaymentAmount
         className="mt-2"
-        amount={currencyAmount}
-        currency={currency}
+        amount={currency.amount}
+        currency={currency.currency || ""}
       />
       <p className="text-center mt-6">
         <Text className="text-sm">For reference number:</Text>
