@@ -1,3 +1,5 @@
+"use client";
+
 import { paymentUpdate } from "@/lib/api/payments";
 import { PaymentUpdateBody } from "@/types";
 import { useMutation } from "@tanstack/react-query";
@@ -8,7 +10,7 @@ export const useUpdatePayment = ({
   currency,
 }: {
   uuid: string;
-  currency?: string;
+  currency?: string | null;
 }) => {
   const updatePayment = useMutation({
     mutationFn: (body: PaymentUpdateBody) => paymentUpdate(uuid, body),

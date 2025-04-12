@@ -1,77 +1,70 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "./ui/Button";
-import { ExpireDate } from "./ui/ExpireDate";
-import { Money } from "./ui/Money";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableBody, TableCell, TableRow } from "./ui/Table";
 import { Text } from "./ui/Text";
-import { Currency } from "@/types";
+import { paymentOptions } from "@/paymentOptions";
+import { Combobox } from "./ui/Combobx";
+import { useUpdatePayment } from "@/hooks/useUpdatePayment";
+import { useParams, useRouter } from "next/navigation";
+import { PayInConfirmationDetails } from "./PayInConfirmationDetails";
+import { useConfirmPayment } from "@/hooks/useComfirmPayment";
 
-interface PayInConfirmationProps {
-  isLoading: boolean;
-  expiredTimestamp: number;
-  hasSelectedCurrency: boolean;
-  paidCurrency: Currency;
-  onConfirmPayment: () => void;
-}
-
-export const PayInConfirmation = ({
-  isLoading,
-  hasSelectedCurrency,
-  paidCurrency,
-  expiredTimestamp,
-  onConfirmPayment,
-}: PayInConfirmationProps) => {
+export const PayInConfirmation = () => {
+  const router = useRouter();
+  const { uuid } = useParams<{ uuid: string }>();
+  const [currency, setCurrency] = useState<string | null>(null);
   const [navigating, setNavigating] = useState(false);
 
-  if (!hasSelectedCurrency) {
-    return null;
-  }
+  const { updatePayment } = useUpdatePayment({
+    uuid,
+    currency,
+  });
+  const updatePaymentLoading = updatePayment?.isPending ?? false;
 
-  const handleConfirmPayment = () => {
+  const { confirmPayment } = useConfirmPayment(uuid);
+
+  const handleCurrencyChange = (currency: string) => {
+    setCurrency(currency);
+  };
+
+  const handleConfirmPayment = async () => {
     setNavigating(true);
-    onConfirmPayment();
+    await confirmPayment();
+    router.push(`/payin/${uuid}/pay`);
   };
 
   return (
     <>
-      <Table className="mt-8">
-        <TableBody>
-          <TableRow>
-            <TableCell>
-              <Text>Amount due</Text>
-            </TableCell>
-            <TableCell className="text-right">
-              {isLoading ? (
-                <Spinner size={16} />
-              ) : (
-                <Money money={paidCurrency} />
-              )}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              <Text>Quoted price expires in</Text>
-            </TableCell>
-            <TableCell className="text-right">
-              {isLoading ? (
-                <Spinner size={16} />
-              ) : (
-                <ExpireDate datetime={expiredTimestamp} />
-              )}
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <div className="flex flex-col gap-1 mt-6">
+        <Text>Pay with</Text>
+        <Combobox
+          options={paymentOptions}
+          placeholder="Select Currency"
+          onChange={handleCurrencyChange}
+        />
+      </div>
+      {currency && (
+        <>
+          <PayInConfirmationDetails
+            currency={{
+              amount: updatePayment?.data?.paidCurrency.amount ?? 0,
+              currency: updatePayment?.data?.paidCurrency.currency ?? "",
+            }}
+            expireTimestamp={updatePayment?.data?.acceptanceExpiryDate ?? 0}
+            isLoading={updatePaymentLoading}
+          />
 
-      {!isLoading && (
-        <Button
-          disabled={navigating}
-          onClick={handleConfirmPayment}
-          className="w-full mt-8"
-        >
-          {navigating ? "Processing..." : "Confirm"}
-        </Button>
+          {!updatePaymentLoading && (
+            <Button
+              disabled={navigating}
+              onClick={handleConfirmPayment}
+              className="w-full mt-8"
+            >
+              {navigating ? "Processing..." : "Confirm"}
+            </Button>
+          )}
+        </>
       )}
     </>
   );

@@ -1,60 +1,77 @@
 import { PayInConfirmation } from "./PayInConfirmation";
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 
-const mockedCurrency = { amount: 10, currency: "EUR" };
+jest.mock("@/hooks/useUpdatePayment", () => ({
+  useUpdatePayment: jest.fn(() => ({
+    updatePayment: {
+      data: {
+        paidCurrency: {
+          amount: 100,
+          currency: "USD",
+        },
+        acceptanceExpiryDate: 0,
+      },
+      isPending: false,
+      mutate: jest.fn(),
+    },
+  })),
+}));
+
+jest.mock("@/hooks/useComfirmPayment", () => ({
+  useConfirmPayment: jest.fn(() => ({
+    confirmPayment: jest.fn(),
+  })),
+}));
+
+const mockPush = jest.fn();
+jest.mock("next/navigation", () => {
+  return {
+    useRouter: jest.fn(() => ({
+      push: mockPush,
+    })),
+    useParams: jest.fn(() => ({
+      uuid: "12345",
+    })),
+  };
+});
+
 describe("PayInConfirmation", () => {
-  it("should render null when has no currency selected", () => {
+  it("should render select currency combobox on init", () => {
     // Arrange
-    const { container } = render(
-      <PayInConfirmation
-        expiredTimestamp={1744456664810}
-        isLoading={false}
-        onConfirmPayment={jest.fn()}
-        hasSelectedCurrency={false}
-        paidCurrency={mockedCurrency}
-      />
-    );
+    render(<PayInConfirmation />);
 
     // Assert
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByText("Pay with")).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.queryByText("Amount due")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Quoted price expires in")
+    ).not.toBeInTheDocument();
   });
 
-  it("should render table with spinners when has selected currency and is loading", () => {
+  it("should select currency and click confirm", async () => {
     // Arrange
-    render(
-      <PayInConfirmation
-        expiredTimestamp={1744456664810}
-        isLoading={true}
-        onConfirmPayment={jest.fn()}
-        hasSelectedCurrency={true}
-        paidCurrency={mockedCurrency}
-      />
-    );
+    render(<PayInConfirmation />);
+
+    // Act
+    await act(async () => {
+      await fireEvent.click(screen.getByRole("combobox"));
+      await fireEvent.click(screen.getByText("Bitcoin"));
+    });
 
     // Assert
     expect(screen.getByText("Amount due")).toBeInTheDocument();
     expect(screen.getByText("Quoted price expires in")).toBeInTheDocument();
-    expect(screen.getAllByTestId("spinner")).toHaveLength(2);
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
-  });
-
-  it("should call onConfirmPayment when clicking confirm button", () => {
-    // Arrange
-    const onConfirmPayment = jest.fn();
-    render(
-      <PayInConfirmation
-        expiredTimestamp={1744456664810}
-        isLoading={false}
-        onConfirmPayment={onConfirmPayment}
-        hasSelectedCurrency={true}
-        paidCurrency={mockedCurrency}
-      />
-    );
 
     // Act
-    screen.getByRole("button").click();
+    await act(async () => {
+      await fireEvent.click(screen.getByRole("button", { name: /confirm/i }));
+    });
 
     // Assert
-    expect(onConfirmPayment).toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: /processing.../i })
+    ).toBeDisabled();
+    expect(mockPush).toHaveBeenCalledWith("/payin/12345/pay");
   });
 });

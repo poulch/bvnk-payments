@@ -1,28 +1,31 @@
-"use client";
-
 import { PaymentDetails } from "@/components/PaymentDetails";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { PaymentTitle } from "@/components/ui/PaymentTitle";
-import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
-import { usePaymentSummary } from "@/hooks/usePaymentSummary";
+import { paymentSummary } from "@/lib/api/payments";
 import { paymentOptions } from "@/paymentOptions";
-import { useParams } from "next/navigation";
+import { redirect } from "next/navigation";
 
-export default function Pay() {
-  const params = useParams<{ uuid: string }>();
+export default async function Pay({ params }: { params: { uuid: string } }) {
+  const { uuid } = await params;
+  const { data, status } = await paymentSummary(uuid);
 
-  const { data, isLoading } = usePaymentSummary(params.uuid);
+  let redirectUrl = "";
 
-  if (isLoading) {
-    return (
-      <Container>
-        <Card className="place-content-center grid min-h-80">
-          <Spinner />
-        </Card>
-      </Container>
-    );
+  try {
+    if (status !== 200) {
+      redirectUrl = "/error";
+    } else if (data?.status === "EXPIRED") {
+      redirectUrl = `/payin/${uuid}/expired`;
+    }
+  } catch (error) {
+    console.error("Error fetching payment summary:", error);
+    redirectUrl = `/error`;
+  } finally {
+    if (redirectUrl) {
+      redirect(redirectUrl);
+    }
   }
 
   const address = data?.address;
