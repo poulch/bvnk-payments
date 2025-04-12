@@ -5,10 +5,8 @@ import { Money } from "./ui/Money";
 import { Spinner } from "./ui/Spinner";
 import { Table, TableBody, TableCell, TableRow } from "./ui/Table";
 import { Text } from "./ui/Text";
-import { useRouter } from "next/navigation";
 
 interface PayInConfirmationProps {
-  uuid: string;
   isLoading: boolean;
   expiredTimestamp: number;
   showConfirmButton: boolean;
@@ -22,14 +20,12 @@ interface PayInConfirmationProps {
 }
 
 export const PayInConfirmation = ({
-  uuid,
   isLoading,
   showConfirmButton,
   paidCurrency,
   expiredTimestamp,
   onConfirmPayment,
 }: PayInConfirmationProps) => {
-  const router = useRouter();
   const [navigating, setNavigating] = useState(false);
   console.log("showConfirmButton", showConfirmButton);
 
@@ -40,7 +36,6 @@ export const PayInConfirmation = ({
   const handleConfirmPayment = () => {
     setNavigating(true);
     onConfirmPayment();
-    router.push(`/payin/${uuid}/pay`);
   };
 
   return (

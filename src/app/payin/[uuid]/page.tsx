@@ -3,27 +3,28 @@
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { paymentConfirm } from "@/lib/api/payments";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/Spinner";
 import { useUpdatePayment } from "@/hooks/useUpdatePayment";
-import { useEffect, useState } from "react";
-import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { usePaymentSummary } from "@/hooks/usePaymentSummary";
 import { PayInSummaryCard } from "@/components/PayInSummaryCard";
 import { PayInConfirmation } from "@/components/PayInConfirmation";
+import { useExpiredRedirect } from "@/hooks/useExpiredRedirect";
+import { usePaymentRedirect } from "@/hooks/usePaymentRedirect";
+import { useErrorRedirect } from "@/hooks/useErrorRedirect";
 
 export default function PayIn() {
-  const params = useParams<{ uuid: string }>();
   const router = useRouter();
+  const params = useParams<{ uuid: string }>();
   const [currency, setCurrency] = useState<string | undefined>(undefined);
 
   const { data, isLoading, isError, isExpired, isAccepted } = usePaymentSummary(
     params.uuid
   );
 
-  const { updatePayment } = useUpdatePayment({
+  const { updatePayment, isExpired: isPaymentExpired } = useUpdatePayment({
     uuid: params.uuid,
     currency,
   });
@@ -37,27 +38,14 @@ export default function PayIn() {
     setCurrency(currency);
   };
 
-  // side effects
-  useEffect(() => {
-    const expired =
-      updatePayment?.data?.status === "EXPIRED" ||
-      isExpired ||
-      (
-        updatePayment?.error as AxiosError<{ message: string }>
-      )?.response?.data?.message?.includes("EXPIRED");
+  const handleConfirmPayment = async () => {
+    await confirmPayment.mutateAsync();
+    router.push(`/payin/${params.uuid}/pay`);
+  };
 
-    if (expired) router.push(`/payin/${params.uuid}/expired`);
-    if (isAccepted) router.push(`/payin/${params.uuid}/pay`);
-    if (isError) router.push(`/payin/${params.uuid}/error`);
-  }, [
-    isAccepted,
-    isError,
-    isExpired,
-    params.uuid,
-    router,
-    updatePayment?.data?.status,
-    updatePayment?.error,
-  ]);
+  useExpiredRedirect(isExpired || isPaymentExpired, params.uuid);
+  usePaymentRedirect(isAccepted, params.uuid);
+  useErrorRedirect(isError);
 
   if (isLoading)
     return (
@@ -80,10 +68,9 @@ export default function PayIn() {
         />
 
         <PayInConfirmation
-          uuid={params.uuid}
           isLoading={updatePaymentLoading}
           showConfirmButton={!!updatePayment?.data}
-          onConfirmPayment={confirmPayment.mutateAsync}
+          onConfirmPayment={handleConfirmPayment}
           paidCurrency={updatePayment?.data?.paidCurrency}
           expiredTimestamp={updatePayment?.data?.acceptanceExpiryDate ?? 0}
         />
