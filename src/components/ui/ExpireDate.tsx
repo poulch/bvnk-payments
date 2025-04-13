@@ -22,19 +22,13 @@ export const ExpireDate = ({ datetime }: ExpireDateProps) => {
     return <Text>00:00:00</Text>;
   }
 
-  const hours = Math.floor((timeLeft / 1000 / 60 / 60) % 24)
-    .toString()
-    .padStart(2, "0");
-  const minutes = Math.floor((timeLeft / 1000 / 60) % 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = Math.floor((timeLeft / 1000) % 60)
-    .toString()
-    .padStart(2, "0");
+  const formattedTime = new Intl.DateTimeFormat("en", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "UTC",
+    hour12: false,
+  }).format(new Date(timeLeft));
 
-  return (
-    <Text>
-      {hours}:{minutes}:{seconds}
-    </Text>
-  );
+  return <Text>{formattedTime}</Text>;
 };
